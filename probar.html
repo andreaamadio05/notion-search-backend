@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Buscar en el podcast</title>
+  </head>
+  <body>
+    <h2>Buscar en el podcast</h2>
+    <input type="text" id="pregunta" placeholder="Escribe una palabra...">
+    <button onclick="buscar()">Buscar</button>
+    <div id="resultado"></div>
+
+
+    <script>
+      async function buscar() {
+        try {
+          const pregunta = document.getElementById("pregunta").value;
+          const res = await fetch("/buscar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ pregunta })
+          });
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          const json = await res.json();
+          const contenedor = document.getElementById("resultado");
+          contenedor.innerHTML = "";
+
+          if (json.resultados.length === 0) {
+            contenedor.innerHTML = "<p>No se encontraron resultados.</p>";
+            return;
+          }
+
+          json.resultados.forEach(r => {
+            const tarjeta = document.createElement("div");
+            tarjeta.style.border = "1px solid #ccc";
+            tarjeta.style.borderRadius = "10px";
+            tarjeta.style.padding = "15px";
+            tarjeta.style.marginBottom = "10px";
+            tarjeta.style.background = "#f9f9f9";
+
+            tarjeta.innerHTML = `
+            <h3>${r.episodio}</h3>
+            <p><strong>Minuto:</strong> ${r.minuto}</p>
+            <p><strong>Fragmento:</strong> ${r.fragmento}</p>
+            ${r.url ? `<a href="${r.url}" target="_blank">Ver episodio</a>` : ""}
+          `;
+
+            contenedor.appendChild(tarjeta);
+          });
+        } catch (error) {
+          console.error('There was a problem with the fetch operation:', error);
+          const contenedor = document.getElementById("resultado");
+          contenedor.innerHTML = "<p>Error al buscar.</p>";
+        }
+      }
+    </script>
+
+  </body>
+</html>
