@@ -1,3 +1,7 @@
+@app.route("/", methods=["GET"])
+def index():
+    return "API is running!"
+
 from flask import Flask, request, jsonify, send_file
 import os
 import requests
